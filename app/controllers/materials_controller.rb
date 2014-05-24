@@ -22,23 +22,24 @@ class MaterialsController < ApplicationController
   end
 
   # POST /materials
-  # POST /materials.json
-  def create
-    save_path = File.join("public/materials", params[:material][:path].original_filename)
-    File.open(save_path, "wb") { |f| f.write(params[:material][:path].read) }
+	# POST /materials.json
+	def create
+		# binding.pry
+		save_path = File.join("public/materials", params[:material][:path].original_filename)
+		File.open(save_path, "wb") { |f| f.write(params[:material][:path].read) }
 
-    @material = Material.new(path: save_path.to_s)
+		@material = Material.new(path: save_path.to_s)
 
-    respond_to do |format|
-      if @material.save
-        format.html { redirect_to @material, notice: 'Material was successfully created.' }
-        format.json { render :show, status: :created, location: @material }
-      else
-        format.html { render :new }
-        format.json { render json: @material.errors, status: :unprocessable_entity }
-      end
-    end
-  end
+		respond_to do |format|
+			if @material.save and params[:material][:path].tempfile.size < (5 * 1000)
+				format.html { redirect_to @material, notice: 'Material was successfully created.' }
+				format.json { render :show, status: :created, location: @material }
+			else
+				format.html { render :new }
+				format.json { render json: @material.errors, status: :unprocessable_entity }
+			end
+		end
+	end
 
   # PATCH/PUT /materials/1
   # PATCH/PUT /materials/1.json
